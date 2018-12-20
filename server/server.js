@@ -2,7 +2,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const routes = require('../routes/routes');
 const app = express();
-require('dotenv').config();
+
+if (process.env.NODE_ENV === 'development') {
+  require('dotenv').config();
+}
+
 require('../db/mongoose');
 
 app.use(bodyParser.json());
