@@ -1,7 +1,7 @@
 const request = require('supertest');
 const { ObjectID } = require('mongodb');
 const { assert } = require('chai');
-const { Todo } = require('../models/models');
+const Todo = require('../models/TodoModel');
 const { app } = require('../server/server');
 
 const todos = [

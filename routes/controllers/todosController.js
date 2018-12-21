@@ -1,5 +1,19 @@
-const { Todo } = require('../../models/models');
+const _ = require('lodash');
 const { ObjectID } = require('mongodb');
+const Todo = require('../../models/TodoModel');
+
+////////////////
+// POST TODOS //
+////////////////
+const todosPost = (req, res) => {
+  const newTodo = new Todo({
+    text: req.body.text
+  });
+  newTodo
+    .save()
+    .then(d => res.send(d))
+    .catch(e => res.status(400).send(e.message));
+};
 
 ///////////////
 // GET TODOS //
@@ -24,19 +38,6 @@ const todosGetByID = (req, res) => {
     .catch(e => res.status(400).send(e.message));
 };
 
-////////////////
-// POST TODOS //
-////////////////
-const todosPost = (req, res) => {
-  const todo = new Todo({
-    text: req.body.text
-  });
-  todo
-    .save()
-    .then(d => res.send(d))
-    .catch(e => res.status(400).send(e.message));
-};
-
 /////////////////////
 // PATCH TODOS/:ID //
 /////////////////////
@@ -46,7 +47,7 @@ const todosPatch = (req, res) => {
     return res.status(404).send();
   }
 
-  const update = req.body;
+  const update = _.pick(req.body, ['text']);
   Todo.findOneAndUpdate({ _id: id }, { $set: update }, { new: true })
     .then(d => (d ? res.send(d) : res.send(404).send()))
     .catch(e => res.send(e.message));

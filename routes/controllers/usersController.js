@@ -1,70 +1,28 @@
-const { User } = require('../../models/models');
-const { ObjectID } = require('mongodb');
+const _ = require('lodash');
+const User = require('../../models/UserModel');
 
 ///////////////
-// GET USERS //
+// POST USER //
 ///////////////
-const usersGet = (req, res) => {
-  User.find()
-    .then(d => res.send(d))
-    .catch(e => res.send(e));
-};
-
-///////////////////
-// GET USERS/:ID //
-///////////////////
-const usersGetByID = (req, res) => {
-  const id = req.params.id;
-  if (!ObjectID.isValid(id)) {
-    return res.status(404).send();
-  }
-  User.findById({ _id: id })
-    .then(d => (d ? res.send(d) : res.status(404).send()))
-    .catch(e => res.status(400).send(e.message));
-};
-
-////////////////
-// POST USERS //
-////////////////
 const usersPost = (req, res) => {
-  const newUser = new User(req.body);
+  const body = _.pick(req.body, ['email', 'password']);
+  const newUser = new User(body);
+
   newUser
     .save()
-    .then(d => res.send(d))
-    .catch(e => res.status(400).send(e));
-};
-
-/////////////////////
-// PATCH USERS/:ID //
-/////////////////////
-const usersPatch = (req, res) => {
-  const id = req.params.id;
-  if (!ObjectID.isValid(id)) {
-    return res.status(404).send();
-  }
-  const update = req.body;
-  User.findOneAndUpdate({ _id: id }, { $set: update }, { new: true })
-    .then(d => (d ? res.send(d) : res.status(404).send()))
+    .then(() => newUser.generateAuthToken())
+    .then(token => res.header('x-auth', token).send(newUser))
     .catch(e => res.status(400).send(e.message));
 };
 
-//////////////////////
-// DELETE USERS/:ID //
-//////////////////////
-const usersDeleteByID = (req, res) => {
-  const id = req.params.id;
-  if (!ObjectID.isValid(id)) {
-    return res.status(404).send();
-  }
-  User.findOneAndDelete({ _id: id })
-    .then(d => (d ? res.send(d) : res.status(404).send()))
-    .catch(e => res.status(400).send(e.message));
+//////////////////
+// GET USERS/ME //
+//////////////////
+const usersGetMe = (req, res) => {
+  res.send(req.user);
 };
 
 module.exports = {
-  usersGet,
-  usersGetByID,
   usersPost,
-  usersPatch,
-  usersDeleteByID
+  usersGetMe
 };

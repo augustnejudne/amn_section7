@@ -4,5 +4,8 @@ mongoose.Promise = global.Promise;
 mongoose.set('useFindAndModify', false);
 mongoose.connect(
   process.env.MONGODB_URI,
-  { useNewUrlParser: true }
+  {
+    useCreateIndex: true,
+    useNewUrlParser: true
+  }
 );
