@@ -21,38 +21,42 @@ const UserSchema = new mongoose.Schema({
     required: true,
     minlength: 6
   },
-  tokens: [{
-    access: {
-      type: String,
-      required: true
-    },
-    token: {
-      type: String,
-      required: true
+  tokens: [
+    {
+      access: {
+        type: String,
+        required: true
+      },
+      token: {
+        type: String,
+        required: true
+      }
     }
-  }]
+  ]
 });
 
-UserSchema.methods.toJSON = function () {
+UserSchema.methods.toJSON = function() {
   var user = this;
   var userObject = user.toObject();
 
   return _.pick(userObject, ['_id', 'email']);
 };
 
-UserSchema.methods.generateAuthToken = function () {
+UserSchema.methods.generateAuthToken = function() {
   const user = this;
   const access = 'auth';
-  const token = jwt.sign({_id: user._id.toHexString(), access}, 'abc123').toString();
+  const token = jwt
+    .sign({ _id: user._id.toHexString(), access }, 'abc123')
+    .toString();
 
-  user.tokens = user.tokens.concat([{access, token}]);
+  user.tokens = user.tokens.concat([{ access, token }]);
 
   return user.save().then(() => {
     return token;
   });
 };
 
-UserSchema.statics.findByToken = function (token) {
+UserSchema.statics.findByToken = function(token) {
   var User = this;
   var decoded;
 
@@ -63,13 +67,27 @@ UserSchema.statics.findByToken = function (token) {
   }
 
   return User.findOne({
-    '_id': decoded._id,
+    _id: decoded._id,
     'tokens.token': token,
     'tokens.access': 'auth'
   });
 };
 
-UserSchema.pre('save', function (next) {
+UserSchema.statics.findByCredentials = function(email, password) {
+  const User = this;
+
+  return User.findOne({ email }).then(user => {
+    return user
+      ? new Promise((resolve, reject) => {
+          bcrypt.compare(password, user.password, (err, res) => {
+            res ? resolve(user) : reject();
+          });
+        })
+      : Promise.reject();
+  });
+};
+
+UserSchema.pre('save', function(next) {
   const user = this;
 
   if (user.isModified('password')) {

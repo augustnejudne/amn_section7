@@ -1,10 +1,12 @@
 const authenticate = require('../middleware/authenticate');
 const {
-  usersPost,
-  usersGetMe
+  postUsers,
+  postUsersLogin,
+  getUsersMe
 } = require('./controllers/usersController');
 
 module.exports = app => {
-  app.post('/users', usersPost);
-  app.get('/users/me', authenticate, usersGetMe);
+  app.post('/users', postUsers);
+  app.post('/users/login', postUsersLogin);
+  app.get('/users/me', authenticate, getUsersMe);
 };

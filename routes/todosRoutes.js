@@ -1,15 +1,15 @@
 const {
-  todosGet,
-  todosGetByID,
-  todosPost,
-  todosPatch,
-  todosDeleteByID
+  postTodos,
+  getTodos,
+  getTodosID,
+  patchTodos,
+  deleteTodosID
 } = require('./controllers/todosController');
 
 module.exports = app => {
-  app.post('/todos', todosPost);
-  app.get('/todos', todosGet);
-  app.get('/todos/:id', todosGetByID);
-  app.patch('/todos/:id', todosPatch);
-  app.delete('/todos/:id', todosDeleteByID);
+  app.post('/todos', postTodos);
+  app.get('/todos', getTodos);
+  app.get('/todos/:id', getTodosID);
+  app.patch('/todos/:id', patchTodos);
+  app.delete('/todos/:id', deleteTodosID);
 };

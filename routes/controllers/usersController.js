@@ -4,25 +4,42 @@ const User = require('../../models/UserModel');
 ///////////////
 // POST USER //
 ///////////////
-const usersPost = (req, res) => {
+const postUsers = (req, res) => {
   const body = _.pick(req.body, ['email', 'password']);
   const newUser = new User(body);
 
   newUser
     .save()
-    .then(() => newUser.generateAuthToken())
+    .then(user => user.generateAuthToken())
     .then(token => res.header('x-auth', token).send(newUser))
     .catch(e => res.status(400).send(e.message));
+};
+
+//////////////////////
+// POST USERS/LOGIN //
+//////////////////////
+const postUsersLogin = (req, res) => {
+  const body = _.pick(req.body, ['email', 'password']);
+
+  User.findByCredentials(body.email, body.password)
+    .then(user => {
+      user.generateAuthToken()
+        .then(token => res.header('x-auth', token).send(user));
+    })
+    .catch(e => {
+      res.status(400).send(e);
+    });
 };
 
 //////////////////
 // GET USERS/ME //
 //////////////////
-const usersGetMe = (req, res) => {
+const getUsersMe = (req, res) => {
   res.send(req.user);
 };
 
 module.exports = {
-  usersPost,
-  usersGetMe
+  postUsers,
+  postUsersLogin,
+  getUsersMe
 };

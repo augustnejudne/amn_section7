@@ -5,7 +5,7 @@ const Todo = require('../../models/TodoModel');
 ////////////////
 // POST TODOS //
 ////////////////
-const todosPost = (req, res) => {
+const postTodos = (req, res) => {
   const newTodo = new Todo({
     text: req.body.text
   });
@@ -18,7 +18,7 @@ const todosPost = (req, res) => {
 ///////////////
 // GET TODOS //
 ///////////////
-const todosGet = (req, res) => {
+const getTodos = (req, res) => {
   Todo.find()
     .then(d => res.send(d))
     .catch(e => res.send(e));
@@ -27,7 +27,7 @@ const todosGet = (req, res) => {
 ///////////////////
 // GET TODOS/:ID //
 ///////////////////
-const todosGetByID = (req, res) => {
+const getTodosID = (req, res) => {
   const id = req.params.id;
   if (!ObjectID.isValid(id)) {
     return res.status(404).send();
@@ -41,7 +41,7 @@ const todosGetByID = (req, res) => {
 /////////////////////
 // PATCH TODOS/:ID //
 /////////////////////
-const todosPatch = (req, res) => {
+const patchTodos = (req, res) => {
   const id = req.params.id;
   if (!ObjectID.isValid(id)) {
     return res.status(404).send();
@@ -56,7 +56,7 @@ const todosPatch = (req, res) => {
 //////////////////////
 // DELETE TODOS/:ID //
 //////////////////////
-const todosDeleteByID = (req, res) => {
+const deleteTodosID = (req, res) => {
   const id = req.params.id;
   if (!ObjectID.isValid(id)) {
     return res.status(404).send();
@@ -68,9 +68,9 @@ const todosDeleteByID = (req, res) => {
 };
 
 module.exports = {
-  todosGet,
-  todosGetByID,
-  todosPost,
-  todosPatch,
-  todosDeleteByID
+  postTodos,
+  getTodos,
+  getTodosID,
+  patchTodos,
+  deleteTodosID
 };
