@@ -64,4 +64,40 @@ describe('USER TESTS', () => {
       .expect(400)
       .end(done);
   });
+
+  it('should login an existing user', done => {
+    const existingUser = {email: users[0].email, password: users[0].password};
+
+    request(app)
+      .post('/users/login')
+      .send(existingUser)
+      .expect(200)
+      .expect(res => {
+        assert.property(res.header, 'x-auth');
+        assert.property(res.body, '_id');
+        assert.property(res.body, 'email');
+        assert.equal(res.body.email, existingUser.email);
+      })
+      .end(done);
+  });
+
+  it('should get 400 if user is not found', done => {
+    const nonExistentUser = {email: 'userX@test.com', password: 'userOnePass'};
+
+    request(app)
+      .post('/users/login')
+      .send(nonExistentUser)
+      .expect(400)
+      .end(done);
+  });
+
+  it('should get 400 if password does not match existing email', done => {
+    const wrongPasswordUser = {email: 'userOne@test.com', password: 'wrongPassword'};
+
+    request(app)
+      .post('/users/login')
+      .send(wrongPasswordUser)
+      .expect(400)
+      .end(done);
+  });
 });
