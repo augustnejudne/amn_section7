@@ -2,9 +2,10 @@ const request = require('supertest');
 const { assert } = require('chai');
 const { app } = require('../server/server');
 const { users, populateUsers } = require('./seeds/userSeed');
+const User = require('../models/UserModel');
 
 describe('USER TESTS', () => {
-  before(populateUsers);
+  beforeEach(populateUsers);
   it('should return user if authenticated', done => {
     request(app)
       .get('/users/me')
@@ -39,7 +40,7 @@ describe('USER TESTS', () => {
   });
 
   it('should return a 400 if user already exists', done => {
-    const newUser = { email: 'userThree@test.com', password: 'userThreePass' };
+    const newUser = { email: 'userTwo@test.com', password: 'userTwoPass' };
     request(app)
       .post('/users')
       .send(newUser)
@@ -98,6 +99,25 @@ describe('USER TESTS', () => {
       .post('/users/login')
       .send(wrongPasswordUser)
       .expect(400)
+      .end(done);
+  });
+
+  it('should delete session token', done => {
+    // delete request to /users/me/token
+    // set x-auth = inside the tokens array
+    // expect 200
+    // find user and verify that tokens array has length of 0
+    request(app)
+      .delete('/users/me/token')
+      .set('x-auth', users[0].tokens[0].token)
+      .expect(200)
+      .expect(() => {
+        User.findById(users[0]._id.toString())
+          .then(user => {
+            assert.lengthOf(user.tokens, 0);
+          })
+          .catch(e => console.log(e));
+      })
       .end(done);
   });
 });

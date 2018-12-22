@@ -4,7 +4,7 @@ const { app } = require('../server/server');
 const { todos, populateTodos } = require('./seeds/todoSeed');
 
 describe('TODO TESTS', () => {
-  before(populateTodos);
+  beforeEach(populateTodos);
   it('should get all the todos', done => {
     request(app)
       .get('/todos')
@@ -52,9 +52,9 @@ describe('TODO TESTS', () => {
 
   it('should delete a todo', done => {
     request(app)
-      .delete(`/todos/${todos[1]._id.toString()}`)
+      .delete(`/todos/${todos[0]._id.toString()}`)
       .expect(200)
-      .expect(res => assert.equal(res.body.text, 'Second test todo UPDATED!!!'))
+      .expect(res => assert.equal(res.body.text, 'First test todo'))
       .end(done);
   });
 
