@@ -38,8 +38,17 @@ const getUsersMe = (req, res) => {
   res.send(req.user);
 };
 
+///////////////////////////
+// DELETE USERS/ME/TOKEN //
+///////////////////////////
+const deleteUsersMe = (req, res) => {
+  req.user.removeToken(req.token)
+    .then(() => res.status(200).send(), () => res.status(400).send());
+};
+
 module.exports = {
   postUsers,
   postUsersLogin,
-  getUsersMe
+  getUsersMe,
+  deleteUsersMe
 };
