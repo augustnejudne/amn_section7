@@ -7,19 +7,32 @@ const Todo = require('../../models/TodoModel');
 ////////////////
 const postTodos = (req, res) => {
   const newTodo = new Todo({
-    text: req.body.text
+    text: req.body.text,
+    _creator: req.user._id
   });
+
   newTodo
     .save()
-    .then(d => res.send(d))
-    .catch(e => res.status(400).send(e.message));
+    .then(d => {
+      // console.log('========================');
+      // console.log('todosController.js, 18');
+      // console.log('SAVED newTodo\n', d);
+      // console.log('========================');
+      res.status(200).send(d);
+    })
+    .catch(e => {
+      // console.log('========================');
+      // console.log('todosController.js, 25');
+      // console.log('========================');
+      res.status(400).send(e.message);
+    });
 };
 
 ///////////////
 // GET TODOS //
 ///////////////
 const getTodos = (req, res) => {
-  Todo.find()
+  Todo.find({ _creator: req.user._id })
     .then(d => res.send(d))
     .catch(e => res.send(e));
 };
@@ -33,7 +46,7 @@ const getTodosID = (req, res) => {
     return res.status(404).send();
   }
 
-  Todo.findById(id)
+  Todo.find({_id: id, _creator: req.user._id})
     .then(d => (d ? res.send(d) : res.status(404).send()))
     .catch(e => res.status(400).send(e.message));
 };
@@ -48,9 +61,16 @@ const patchTodos = (req, res) => {
   }
 
   const update = _.pick(req.body, ['text']);
-  Todo.findOneAndUpdate({ _id: id }, { $set: update }, { new: true })
-    .then(d => (d ? res.send(d) : res.send(404).send()))
-    .catch(e => res.send(e.message));
+  if (update.text === '') {
+    return res.status(400).send();
+  };
+  // console.log('========================');
+  // console.log('todosController.js');
+  // console.log(update);
+  // console.log('========================');
+  Todo.findOneAndUpdate({ _id: id, _creator: req.user._id }, { $set: update }, { new: true })
+    .then(d => (d ? res.send(d) : res.status(404).send()))
+    .catch(e => res.status(400).send(e.message));
 };
 
 //////////////////////
@@ -62,9 +82,9 @@ const deleteTodosID = (req, res) => {
     return res.status(404).send();
   }
 
-  Todo.findOneAndDelete({ _id: id })
-    .then(d => (d ? res.send(d) : res.send(404).send()))
-    .catch(e => res.send(e.message));
+  Todo.findOneAndDelete({ _id: id, _creator: req.user._id })
+    .then(d => (d ? res.send(d) : res.status(404).send()))
+    .catch(e => res.status(400).send(e.message));
 };
 
 module.exports = {
