@@ -6,16 +6,8 @@ const authenticate = (req, res, next) => {
   User.findByToken(token)
     .then(user => {
       if (!user) {
-        // console.log('========================');
-        // console.log('authenticate.js');
-        // console.log('NO USER FOUND');
-        // console.log('========================');
         return Promise.reject();
       }
-      // console.log('========================');
-      // console.log('authenticate.js');
-      // console.log('USER FOUND, RETURNING USER');
-      // console.log('========================');
       req.user = user;
       req.token = token;
       next();
