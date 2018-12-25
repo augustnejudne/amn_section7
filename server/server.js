@@ -1,8 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const routes = require('../routes/routes');
-const todosRoutes = require('../routes/todosRoutes');
-const usersRoutes = require('../routes/usersRoutes');
+const todosRoutes = require('../routes/todos.routes');
+const usersRoutes = require('../routes/users.routes');
 const app = express();
 
 if (process.env.NODE_ENV !== 'production') {
@@ -21,4 +21,4 @@ app.listen(process.env.PORT, () => {
   console.log(`Listening on PORT ${process.env.PORT}`);
 });
 
-module.exports = { app };
+module.exports = app;
