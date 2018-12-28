@@ -41,18 +41,18 @@ const UserSchema = new mongoose.Schema({
 // USER SCHEMA METHODS //
 /////////////////////////
 
-//////////////////////
-// INSTANCE METHODS //
-//////////////////////
-
 //////////////////////////////////////////////////////////
 // TO JSON                                              //
+// INSTANCE METHOD:                                     //
 // determines exactly what gets sent back to the client //
 // this doesn't actually have to be called              //
 // it just gets called automatically                    //
 // in the controller                                    //
 //////////////////////////////////////////////////////////
 UserSchema.methods.toJSON = function() {
+  console.log('========================');
+  console.log('CONVERTING TO JSON');
+  console.log('========================');
   const user = this;
 
   return _.pick(user, ['_id', 'email']);
@@ -60,6 +60,7 @@ UserSchema.methods.toJSON = function() {
 
 ////////////////////////////////////////////
 // GENERATE AUTH TOKEN                    //
+// INSTANCE METHOD:                       //
 // generates an auth token                //
 // pushes auth token to the user instance //
 // returns the token                      //
@@ -69,12 +70,43 @@ UserSchema.methods.generateAuthToken = function() {
   const access = 'auth';
   const token = jwt.sign({ _id: user._id.toHexString(), access }, 'secret1432').toString();
 
-  // user.tokens.push({ access, token });
-
   user.tokens = user.tokens.concat([{ access, token }]);
+  console.log('========================');
+  console.log('GENERATING AUTH TOKEN');
+  console.log(user.tokens);
+  console.log('========================');
 
   return user.save().then(() => token);
 };
+
+
+////////////////////////////////////////////////////
+// FIND BY TOKEN                                  //
+// MODEL METHOD:                                  //
+// takes the token and finds the appropriate user //
+////////////////////////////////////////////////////
+UserSchema.statics.findByToken = function(token) {
+  console.log('========================');
+  console.log('FINDING BY TOKEN');
+  console.log(token);
+  console.log('========================');
+  const User = this;
+  let decoded = undefined;
+
+  try {
+    decoded = jwt.verify(token, 'secret1432');
+  } catch(e) {
+    return Promise.reject(e);
+  }
+
+  return User.findOne({
+    '_id': decoded._id,
+    'tokens.token': token,
+    'tokens.access': 'auth'
+  });
+};
+
+
 
 ////////////////
 // USER MODEL //

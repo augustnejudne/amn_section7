@@ -10,15 +10,26 @@ const postUsers = (req, res) => {
 
   newUser
     .save()
-    .then(user => user.generateAuthToken())
+    // .then(user => user.generateAuthToken())
+    .then(user => {
+      return user.generateAuthToken();
+    })
     .then(token => res.header('x-auth', token).send(newUser))
     .catch(e => res.status(400).send(JSON.stringify(e.message, undefined, 2)));
 };
 
-/////////////////////
-// POST USER/LOGIN //
-/////////////////////
+//////////////////////
+// POST USERS/LOGIN //
+//////////////////////
+const postUsersLogin = (req, res) => {
+};
 
+//////////////////
+// GET USERS/ME //
+//////////////////
+const getUsersMe = (req, res) => {
+  res.send(req.user);
+};
 
 ////////////////
 // MINI TESTS //
@@ -36,6 +47,7 @@ const minitests = (req, res) => {
 
 module.exports = {
   postUsers,
-  // postUsersLogin
+  postUsersLogin,
+  getUsersMe,
   minitests
 };

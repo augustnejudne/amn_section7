@@ -18,7 +18,10 @@ todosRoutes(app);
 usersRoutes(app);
 
 app.listen(process.env.PORT, () => {
+  console.log('========================');
+  console.log('START HERE');
   console.log(`Listening on PORT ${process.env.PORT}`);
+  console.log('========================');
 });
 
 module.exports = app;
