@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
+const bcrypt = require('bcryptjs');
 
 ////////////////
 // UserSchema //
@@ -68,7 +69,9 @@ UserSchema.methods.toJSON = function() {
 UserSchema.methods.generateAuthToken = function() {
   const user = this;
   const access = 'auth';
-  const token = jwt.sign({ _id: user._id.toHexString(), access }, 'secret1432').toString();
+  const token = jwt
+    .sign({ _id: user._id.toHexString(), access }, 'secret1432')
+    .toString();
 
   user.tokens = user.tokens.concat([{ access, token }]);
   console.log('========================');
@@ -78,7 +81,6 @@ UserSchema.methods.generateAuthToken = function() {
 
   return user.save().then(() => token);
 };
-
 
 ////////////////////////////////////////////////////
 // FIND BY TOKEN                                  //
@@ -95,18 +97,34 @@ UserSchema.statics.findByToken = function(token) {
 
   try {
     decoded = jwt.verify(token, 'secret1432');
-  } catch(e) {
+  } catch (e) {
     return Promise.reject(e);
   }
 
   return User.findOne({
-    '_id': decoded._id,
+    _id: decoded._id,
     'tokens.token': token,
     'tokens.access': 'auth'
   });
 };
 
+///////////////////////////////////
+// MONGOOSE MIDDLEWARE PRE: SAVE //
+///////////////////////////////////
+UserSchema.pre('save', function(next) {
+  const user = this;
 
+  if (user.isModified('password')) {
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(user.password, salt, (err, hash) => {
+        user.password = hash;
+        next();
+      });
+    });
+  } else {
+    next();
+  }
+});
 
 ////////////////
 // USER MODEL //

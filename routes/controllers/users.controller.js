@@ -5,6 +5,9 @@ const User = require('../../models/user.model');
 // POST USERS //
 ///////////////
 const postUsers = (req, res) => {
+  console.log('========================');
+  console.log('POST /users');
+  console.log('========================');
   const body = _.pick(req.body, ['email', 'password']);
   const newUser = new User(body);
 
@@ -28,6 +31,9 @@ const postUsersLogin = (req, res) => {
 // GET USERS/ME //
 //////////////////
 const getUsersMe = (req, res) => {
+  console.log('========================');
+  console.log('GET /users/me');
+  console.log('========================');
   res.send(req.user);
 };
 
@@ -35,6 +41,9 @@ const getUsersMe = (req, res) => {
 // MINI TESTS //
 ////////////////
 const minitests = (req, res) => {
+  console.log('========================');
+  console.log('MINI TEST');
+  console.log('========================');
   const body = _.pick(req.body, ['email', 'password']);
   const newUser = new User(body);
 
