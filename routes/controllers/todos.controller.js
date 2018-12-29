@@ -36,10 +36,6 @@ const getTodos = (req, res) => {
 const getTodosID = (req, res) => {
   const id = req.params.id;
   const creator = req.user._id;
-  console.log('========================');
-  console.log('todos controller 40');
-  console.log(req.user);
-  console.log('========================');
   if (!ObjectID.isValid(id)) {
     return res.status(404).send();
   }
@@ -54,6 +50,7 @@ const getTodosID = (req, res) => {
 /////////////////////
 const patchTodos = (req, res) => {
   const id = req.params.id;
+  const creator = req.user._id;
   if (!ObjectID.isValid(id)) {
     return res.status(404).send();
   }
@@ -66,7 +63,7 @@ const patchTodos = (req, res) => {
   // console.log('todosController.js');
   // console.log(update);
   // console.log('========================');
-  Todo.findOneAndUpdate({ _id: id }, { $set: update }, { new: true })
+  Todo.findOneAndUpdate({ _id: id, _creator: creator }, { $set: update }, { new: true })
     .then(d => (d ? res.send(d) : res.status(404).send()))
     .catch(e => res.status(400).send(e.message));
 };
@@ -76,11 +73,12 @@ const patchTodos = (req, res) => {
 //////////////////////
 const deleteTodosID = (req, res) => {
   const id = req.params.id;
+  const creator = req.user._id;
   if (!ObjectID.isValid(id)) {
     return res.status(404).send();
   }
 
-  Todo.findOneAndDelete({ _id: id })
+  Todo.findOneAndDelete({ _id: id, _creator: creator })
     .then(d => (d ? res.send(d) : res.status(404).send()))
     .catch(e => res.status(400).send(e.message));
 };
