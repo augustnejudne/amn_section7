@@ -88,9 +88,26 @@ describe('TODOS TESTS', () => {
         .set('x-auth', userOneToken)
         .expect(200)
         .expect(res => {
-          assert.typeOf(res.body, 'array');
-          assert.property(res.body[0], 'text');
-          assert.equal(res.body[0].text, todos[0].text);
+          assert.typeOf(res.body, 'object');
+          assert.property(res.body, 'text');
+          assert.equal(res.body.text, todos[0].text);
+        })
+        .end(done);
+    });
+
+    it('get 400 if todo does not belong to user', done => {
+      request(app)
+        .get(`/todos/${todos[3]._id.toHexString()}`)
+        .set('x-auth', userOneToken)
+        .expect(400)
+        .expect(res => {
+          // assert.typeOf(res.body, 'array');
+          // assert.property(res.body[0], 'text');
+          // assert.equal(res.body[0].text, todos[0].text);
+          console.log('========================');
+          console.log('todo.test 108');
+          console.log(res.body);
+          console.log('========================');
         })
         .end(done);
     });
