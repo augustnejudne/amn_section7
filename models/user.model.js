@@ -51,12 +51,9 @@ const UserSchema = new mongoose.Schema({
 // in the controller                                    //
 //////////////////////////////////////////////////////////
 UserSchema.methods.toJSON = function() {
-  console.log('========================');
-  console.log('CONVERTING TO JSON');
-  console.log('========================');
   const user = this;
 
-  return _.pick(user, ['_id', 'email']);
+  return _.pick(user.toObject(), ['_id', 'email']);
 };
 
 ////////////////////////////////////////////
@@ -74,24 +71,33 @@ UserSchema.methods.generateAuthToken = function() {
     .toString();
 
   user.tokens = user.tokens.concat([{ access, token }]);
-  console.log('========================');
-  console.log('GENERATING AUTH TOKEN');
-  console.log(user.tokens);
-  console.log('========================');
-
   return user.save().then(() => token);
+};
+
+//////////////////////////////
+// REMOVE TOKEN             //
+// INSTANCE METHOD          //
+// removes the user's token //
+// serves as a logout       //
+//////////////////////////////
+UserSchema.methods.removeToken = function(token) {
+  const user = this;
+
+  return user.updateOne({
+    $pull: {
+      tokens: {
+        token
+      }
+    }
+  });
 };
 
 ////////////////////////////////////////////////////
 // FIND BY TOKEN                                  //
-// MODEL METHOD:                                  //
+// MODEL METHOD                                   //
 // takes the token and finds the appropriate user //
 ////////////////////////////////////////////////////
 UserSchema.statics.findByToken = function(token) {
-  console.log('========================');
-  console.log('FINDING BY TOKEN');
-  console.log(token);
-  console.log('========================');
   const User = this;
   let decoded = undefined;
 
@@ -105,6 +111,34 @@ UserSchema.statics.findByToken = function(token) {
     _id: decoded._id,
     'tokens.token': token,
     'tokens.access': 'auth'
+  });
+};
+
+///////////////////////////////////////////////////
+// FIND BY CREDENTIALS                           //
+// MODEL METHOD                                  //
+// takes email and password                      //
+// searches the User collection for user         //
+// checks if password matches the password in db //
+// uses Promise to call bcrypt                   //
+///////////////////////////////////////////////////
+UserSchema.statics.findByCredentials = function(email, password) {
+  const User = this;
+
+  return User.findOne({ email }).then(user => {
+    if (!user) {
+      return Promise.reject('Invalid email');
+    }
+
+    return new Promise((resolve, reject) => {
+      bcrypt.compare(password, user.password, (err, res) => {
+        if (!res) {
+          return reject('Invalid password');
+        }
+
+        return resolve(user);
+      });
+    });
   });
 };
 

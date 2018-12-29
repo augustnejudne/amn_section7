@@ -1,13 +1,11 @@
 const _ = require('lodash');
 const User = require('../../models/user.model');
+const bcrypt = require('bcryptjs');
 
 ///////////////
 // POST USERS //
 ///////////////
 const postUsers = (req, res) => {
-  console.log('========================');
-  console.log('POST /users');
-  console.log('========================');
   const body = _.pick(req.body, ['email', 'password']);
   const newUser = new User(body);
 
@@ -25,25 +23,41 @@ const postUsers = (req, res) => {
 // POST USERS/LOGIN //
 //////////////////////
 const postUsersLogin = (req, res) => {
+  const { email, password } = _.pick(req.body, ['email', 'password']);
+
+  User.findByCredentials(email, password)
+    .then(user => {
+      user.generateAuthToken()
+        .then(token => {
+          res.header('x-auth', token).send(user);
+        });
+    })
+    .catch(e => res.status(400).send(e));
 };
 
 //////////////////
 // GET USERS/ME //
 //////////////////
 const getUsersMe = (req, res) => {
-  console.log('========================');
-  console.log('GET /users/me');
-  console.log('========================');
   res.send(req.user);
+};
+
+/////////////////////
+// DELETE USERS ME //
+/////////////////////
+const deleteUsersMeToken = (req, res) => {
+  req.user.removeToken(req.token)
+    .then(() => {
+      res.status(200).send();
+    }, () => {
+      res.status(400).send();
+    });
 };
 
 ////////////////
 // MINI TESTS //
 ////////////////
 const minitests = (req, res) => {
-  console.log('========================');
-  console.log('MINI TEST');
-  console.log('========================');
   const body = _.pick(req.body, ['email', 'password']);
   const newUser = new User(body);
 
@@ -58,5 +72,6 @@ module.exports = {
   postUsers,
   postUsersLogin,
   getUsersMe,
+  deleteUsersMeToken,
   minitests
 };

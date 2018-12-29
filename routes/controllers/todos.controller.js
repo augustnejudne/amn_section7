@@ -7,7 +7,8 @@ const Todo = require('../../models/todo.model');
 ////////////////
 const postTodos = (req, res) => {
   const newTodo = new Todo({
-    text: req.body.text
+    text: req.body.text,
+    _creator: req.user._id
   });
 
   newTodo
@@ -24,7 +25,7 @@ const postTodos = (req, res) => {
 // GET TODOS //
 ///////////////
 const getTodos = (req, res) => {
-  Todo.find()
+  Todo.find({ _creator: req.user._id })
     .then(d => res.send(d))
     .catch(e => res.send(e));
 };
